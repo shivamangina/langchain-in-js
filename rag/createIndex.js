@@ -1,12 +1,9 @@
 const dotenv = require("dotenv");
-const { StringOutputParser } = require("@langchain/core/output_parsers");
 const { Pinecone } = require("@pinecone-database/pinecone");
 
 dotenv.config();
 
-outputParser = new StringOutputParser();
-
-const PINECONE_INDEX_NAME = "harry-potter-index";
+const PINECONE_INDEX_NAME = "socket-index";
 
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY,

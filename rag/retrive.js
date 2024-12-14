@@ -12,7 +12,7 @@ dotenv.config();
 
 outputParser = new StringOutputParser();
 
-const PINECONE_INDEX_NAME = "harry-potter-index";
+const PINECONE_INDEX_NAME = "socket-index";
 
 // Initialize OpenAI client
 const openai = new ChatOpenAI({
@@ -26,14 +26,27 @@ const pinecone = new Pinecone({
 
 // Chunk text into manageable pieces
 const retrive = async () => {
-  const queryEmbedding = await new OpenAIEmbeddings();
-  const vectorStore = new PineconeStore(queryEmbedding, {
-    pineconeIndex: pinecone.Index(PINECONE_INDEX_NAME),
-    namespace: "default",
+  const queryEmbedding = await new OpenAIEmbeddings({
+    openAIApiKey: process.env.OPENAI_API_KEY ?? "",
+    modelName: "text-embedding-3-small",
+    dimensions: 512
+  }).embedQuery("What are switch boards in the socket protocol?");
+  // const vectorStore = new PineconeStore(queryEmbedding, {
+  //   pineconeIndex: pinecone.Index(PINECONE_INDEX_NAME),
+  //   namespace: "default",
+  // });
+
+  const index = pinecone.Index(PINECONE_INDEX_NAME);
+  let queryResponse = await index.query({
+    topK: 10,
+    vector: queryEmbedding,
+    includeMetadata: true,
+    includeValues: true,
   });
 
+  console.log(queryResponse.matches);
+
   const retrievalQaChatPrompt = await hub.pull("langchain-ai/retrieval-qa-chat");
-  console.log('retrievalQaChatPrompt: ', retrievalQaChatPrompt);
 
   const combineDocsChain = await createStuffDocumentsChain({
     llm: openai,
@@ -41,6 +54,7 @@ const retrive = async () => {
   });
 
   const retriever = vectorStore.asRetriever();
+  // console.log("retriever: ", retriever);
 
   const retrievalChain = await createRetrievalChain({
     retriever,
@@ -52,15 +66,13 @@ const retrive = async () => {
 
 // Main function
 const main = async () => {
-  // await ingest(pdfPath);
-
   const retrievalChain = await retrive();
 
-  const answer = await openai.pipe(outputParser).invoke("who is aunt petunia?");
-  console.log("const: ", answer);
+  // const answer = await openai.pipe(outputParser).invoke("Does a switchboard that allows for plug execution if only a single watcher authorize execution?");
+  // console.log("const: ", answer);
 
   const answerWithContext = await retrievalChain.invoke({
-    input: "who is aunt petunia",
+    input: "What are switch boards in the socket protocol?",
   });
   console.log("answerWithContext: ", answerWithContext);
 };

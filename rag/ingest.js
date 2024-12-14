@@ -1,23 +1,12 @@
 const dotenv = require("dotenv");
-const { ChatOpenAI } = require("@langchain/openai");
 const { OpenAIEmbeddings } = require("@langchain/openai");
-const { StringOutputParser } = require("@langchain/core/output_parsers");
 const { Pinecone } = require("@pinecone-database/pinecone");
 const fs = require("fs");
 const pdf = require("pdf-parse");
-const hub = require("langchain/hub");
 
 dotenv.config();
 
-outputParser = new StringOutputParser();
-
-const PINECONE_INDEX_NAME = "harry-potter-index";
-
-// Initialize OpenAI client
-const openai = new ChatOpenAI({
-  model: "gpt-4o",
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const PINECONE_INDEX_NAME = "socket-index";
 
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY,
@@ -55,7 +44,7 @@ const indexEmbeddings = async (indexName, embeddings, chunks) => {
   const vectors = embeddings.map((embedding, i) => ({
     id: `chunk-${i}`,
     values: embedding,
-    // metadata: { text: chunks[i] },
+    metadata: { text: chunks[i] },
   }));
 
   return await index.upsert(vectors);
@@ -64,17 +53,15 @@ const indexEmbeddings = async (indexName, embeddings, chunks) => {
 const ingest = async (filePath) => {
   // Read and process PDF
   const text = await readPDF(filePath);
-  const chunks = chunkText(text);
+  const chunks = chunkText(text); // Recursive text spliter
 
   // Embed text chunks
   const embeddings = await embedText(chunks);
   console.log("embeddings: ", embeddings);
-  const vectorStore = await indexEmbeddings(PINECONE_INDEX_NAME, embeddings, chunks);
-  console.log("vectorStore: ", vectorStore);
-
-  return vectorStore;
+  await indexEmbeddings(PINECONE_INDEX_NAME, embeddings, chunks);
+  console.log("vectorStore created");
 };
 
-const pdfPath = "./books/Harry_Potter_And_The_Order_Of_The_Phoenix_Book_001.pdf";
+const pdfPath = "./books/SocketProtocol.pdf";
 
 ingest(pdfPath);
