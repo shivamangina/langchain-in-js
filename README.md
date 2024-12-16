@@ -33,6 +33,7 @@ node agent.js # to run the agent to get the weather information
 node rag/createIndex.js # to create the index in pinecone
 node rag/ingest.js # to ingest the data into pinecone
 node rag/retrive.js # to retrive the data from pinecone
+```
 
 
 
