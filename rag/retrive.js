@@ -1,10 +1,7 @@
 const dotenv = require("dotenv");
 const { ChatOpenAI } = require("@langchain/openai");
-const { createRetrievalChain } = require("langchain/chains/retrieval");
-const { createStuffDocumentsChain } = require("langchain/chains/combine_documents");
 const { StringOutputParser } = require("@langchain/core/output_parsers");
 const { Pinecone } = require("@pinecone-database/pinecone");
-const { PineconeStore } = require("@langchain/pinecone");
 const { OpenAIEmbeddings } = require("@langchain/openai");
 const hub = require("langchain/hub");
 

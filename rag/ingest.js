@@ -28,8 +28,6 @@ const chunkText = (text, chunkSize = 2000, chunkOverlap = 200) => {
 
 // Embed text chunks using OpenAI
 const embedText = async (chunks) => {
-  console.log("chunks: ", chunks.length);
-  // console.log('chunks: ', chunks);
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: process.env.OPENAI_API_KEY ?? "",
     modelName: "text-embedding-3-small",
@@ -51,15 +49,11 @@ const indexEmbeddings = async (indexName, embeddings, chunks) => {
 };
 
 const ingest = async (filePath) => {
-  // Read and process PDF
-  const text = await readPDF(filePath);
+  const text = await readPDF(filePath); // Read and process PDF
   const chunks = chunkText(text); // Recursive text spliter
+  const embeddings = await embedText(chunks); // Embed text chunks
 
-  // Embed text chunks
-  const embeddings = await embedText(chunks);
-  console.log("embeddings: ", embeddings);
   await indexEmbeddings(PINECONE_INDEX_NAME, embeddings, chunks);
-  console.log("vectorStore created");
 };
 
 const pdfPath = "./books/SocketProtocol.pdf";
