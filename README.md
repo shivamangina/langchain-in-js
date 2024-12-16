@@ -21,20 +21,18 @@ cd langchain-in-js
 
 to run the project, you need to install the dependencies:
 
-```sh
+```javascript
 
 npm install
 
-node simplellm.js # to run the openai llm model
+node simplellm.js // to run the openai llm model
 
-node agent.js # to run the agent to get the weather information
-
-
-node rag/createIndex.js # to create the index in pinecone
-node rag/ingest.js # to ingest the data into pinecone
-node rag/retrive.js # to retrive the data from pinecone
+node agent.js // to run the agent to get the weather information
 
 
+node rag/createIndex.js // to create the index in pinecone
+node rag/ingest.js // to ingest the data into pinecone
+node rag/retrive.js // to retrive the data from pinecone
 
 
 ````
